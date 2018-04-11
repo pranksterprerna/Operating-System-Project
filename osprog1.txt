@@ -1,0 +1,132 @@
+#include<stdio.h> 
+#include<conio.h>
+
+void 3rdIT(int num,int remt[10],int Cur_t,int arrt[10], int bst[10]);
+
+int main() 
+{
+	int ProcNo,j,num,CurT,RemProc,indicator,tq,WaiT,tut,arrt[10],bst[10],remt[10],ivar=1;
+	indicator = 0;
+	WaiT = 0;
+	tut = 0;
+	printf("Enter number of processes... "); 
+	scanf("%d",&num);
+	RemProc = num;
+	
+	printf("\nEnter details of the processes\n");
+	for(ProcNo = 0;ProcNo < num;ProcNo++) 
+	{
+		printf("\nProcess P%d\n\t",ProcNo+1);
+		printf("Arrival time = "); 
+		scanf("%d",&arrt[ProcNo]);
+		printf("\tBurst time = "); 
+		scanf("%d",&bst[ProcNo]); 
+		remt[ProcNo]=bst[ProcNo]; 
+	} 
+	printf("\ First round with 3 as time quantum : \n"); 
+	tq=3;
+	CurT=0;
+	for(ProcNo=0;RemProc!=0;) 
+	{
+		if(remt[ProcNo]<=tq && remt[ProcNo]>0)
+		{ 
+			CurT+=remt[ProcNo]; 
+			remt[ProcNo]=0; 
+			indicator=1; 
+		} 
+		else if(remt[ProcNo]>0)
+		{ 
+			remt[ProcNo]-=tq; 
+			CurT+=tq; 
+		} 
+		if(remt[ProcNo]==0 && indicator==1)			
+		{ 
+			RemProc--;				
+			printf("P%d",ProcNo+1); 
+			printf("\t\t\t%d",CurT-arrt[ProcNo]);
+			printf("\t\t\t%d\n",CurT-bst[ProcNo]-arrt[ProcNo]);
+			WaiT+=CurT-arrt[ProcNo]-bst[ProcNo]; 
+			tut+=CurT-arrt[ProcNo]; 
+			indicator=0; 
+		} 
+		if(ProcNo==num-1){
+			ivar++;
+			if(ivar==2){
+				ProcNo=0;
+				tq=6;
+				printf("\n Completion of First");
+				
+				printf("\nSecond round initiated with 6 as time quantum \n");
+			}
+			else{
+				printf("\n Second round Over");
+				break;
+			}
+		}
+		else if(CurT >= arrt[ProcNo+1]){
+			ProcNo++;
+		}
+		else{
+			ProcNo=0;
+		}
+	}
+	
+	3rdIT(num,remt,CurT,arrt,bst);
+	
+	return 0;
+}
+
+
+void 3rdIT(int num,int remt[10],int Cur_t,int arrt[10], int bst[10]){
+	
+	float averageWaiT,averagetut;
+    int i,j,n=num,temp,btime[20],ProcNo[20],WaiTime[20],tutime[20],total=0,loc;
+    
+    printf("\nThird round with least burst time starts\n");
+    
+    for(i=0;i<n;i++)
+    {
+        btime[i]=remt[i];
+        WaiTime[i]=Cur_t-arrt[i]-btime[i];
+		ProcNo[i]=i+1;
+    }
+	
+    for(i=0;i<n;i++)
+    {
+        loc=i;
+        for(j=i+1;j<n;j++)
+        {
+            if(btime[j]<btime[loc]){
+            	loc=j;
+            }
+        }
+        temp=btime[i];
+        btime[i]=btime[loc];
+        btime[loc]=temp;
+        temp=ProcNo[i];
+        ProcNo[i]=ProcNo[loc];
+        ProcNo[loc]=temp;
+    }
+	
+    for(i=1;i<n;i++)
+    {
+        for(j=0;j<i;j++){
+        	WaiTime[i]+=btime[j];
+        }
+        total+=WaiTime[i];
+    }
+ 
+    averageWaiT=(float)total/n;
+    total=0;
+    printf("\nProcess\t\tBurst time\t\tWaiting time\t\tTurnaround Time");
+    for(i=0;i<n;i++)
+    {
+        tutime[i]=btime[i]+WaiTime[i];
+        total=total + tutime[i];
+        printf("\nP%d\t\t\t%d\t\t\t%d\t\t\t%d",ProcNo[i],btime[i],WaiTime[i],tutime[i]);
+    }
+    averagetut=(float)total/n;
+    printf("\n\nAverage waiting time = %f",averageWaiT);
+    printf("\nAverage turnaround time = %f\n",averagetut);
+	
+}
